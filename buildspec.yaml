@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 127214178522.dkr.ecr.ap-southeast-2.amazonaws.com
+  build:
+    commands:
+      - docker build -t aws_cw_repo .
+      - docker tag aws_cw_repo:latest 127214178522.dkr.ecr.ap-southeast-2.amazonaws.com/aws_cw_repo:latest
+  post_build:
+    commands:
+      - docker push 127214178522.dkr.ecr.ap-southeast-2.amazonaws.com/aws_cw_repo:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"aws_cw_repo","imageUri":"%s"}]' 127214178522.dkr.ecr.ap-southeast-2.amazonaws.com/aws_cw_repo:latest > imagedefinitions.json   
+artifacts:
+  files: imagedefinitions.json
